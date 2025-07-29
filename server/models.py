@@ -49,7 +49,17 @@ class Recipe(db.Model):
     
 
 class UserSchema(Schema):
-    pass
+    id = fields.Int(dump_only=True)
+    username = fields.String()
+    image_url = fields.String()
+    bio = fields.String()
+
+    recipes = fields.Nested(lambda: RecipeSchema(exclude=("user",)), many=True)
 
 class RecipeSchema(Schema):
-    pass
+    id = fields.Int(dump_only=True)
+    title = fields.String()
+    instructions = fields.String()
+    minutes_to_complete = fields.Int()
+
+    user = fields.Nested(lambda: UserSchema(exclude=("recipes",)))
