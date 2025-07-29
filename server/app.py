@@ -55,7 +55,12 @@ class Logout(Resource):
         return {"error": "User is already logged out" }, 401
 
 class RecipeIndex(Resource):
-    pass
+    def get(self):
+        if session.get('user_id'):
+            recipes = [RecipeSchema().dump(recipe) for recipe in Recipe.query.all()]
+            return recipes, 200
+        else:
+            return {"error": "User not logged in"}, 401
 
 api.add_resource(Signup, '/signup', endpoint='signup')
 api.add_resource(CheckSession, '/check_session', endpoint='check_session')
