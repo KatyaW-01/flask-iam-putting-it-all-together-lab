@@ -61,6 +61,25 @@ class RecipeIndex(Resource):
             return recipes, 200
         else:
             return {"error": "User not logged in"}, 401
+        
+    def post(self):
+        if session.get('user_id'):
+            request_json = request.get_json()
+            recipe = Recipe(
+                title = request_json.get('title'),
+                instructions = request_json.get('instructions'),
+                minutes_to_complete = request_json.get('minutes_to_complete'),
+                user_id = session['user_id']
+            )
+            
+            try:
+                db.session.add(recipe)
+                db.session.commit()
+                return RecipeSchema().dump(recipe),201
+            except IntegrityError:
+                return {'error': '422 Unprocessable Entity'}, 422
+        else:
+            return {"error": "User not logged in"}, 401
 
 api.add_resource(Signup, '/signup', endpoint='signup')
 api.add_resource(CheckSession, '/check_session', endpoint='check_session')
