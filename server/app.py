@@ -26,7 +26,12 @@ class Signup(Resource):
            return {'error': '422 Unprocessable Entity'}, 422 
 
 class CheckSession(Resource):
-    pass
+    def get(self):
+        if session.get('user_id'):
+            user = User.query.filter(User.id == session['user_id']).first()
+            return UserSchema().dump(user), 200
+        else:
+            return {"error": "User is not logged in"}, 401
 
 class Login(Resource):
     pass
