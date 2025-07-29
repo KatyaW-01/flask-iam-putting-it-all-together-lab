@@ -1,5 +1,6 @@
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import CheckConstraint
 from marshmallow import Schema, fields
 
 from config import db, bcrypt
@@ -12,6 +13,8 @@ class User(db.Model):
     _password_hash = db.Column(db.String)
     image_url = db.Column(db.String)
     bio = db.Column(db.String)
+
+    recipes = db.relationship('Recipe', back_populates = 'user')
 
     @hybrid_property
     def password_hash(self):
@@ -32,7 +35,18 @@ class User(db.Model):
 class Recipe(db.Model):
     __tablename__ = 'recipes'
     
-    pass
+    id = db.Column(db.Integer, primary_key = True)
+    title = db.Column(db.String, nullable = False)
+    instructions = db.Column(db.String, nullable = False)
+    minutes_to_complete = db.Column(db.Integer)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
+    user = db.relationship('User', back_populates = 'recipes')
+
+    __table_args__ = (
+        CheckConstraint('length(instructions) >= 50', name='check_instructions_length')
+    )
+    
 
 class UserSchema(Schema):
     pass
